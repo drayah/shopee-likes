@@ -45,6 +45,60 @@ test("reads an unwrapped favorites count response", async () => {
   assert.equal(result.totalCount, 2);
 });
 
+test("uses the page-world bridge when no fetch implementation is supplied", async () => {
+  const originalWindow = global.window;
+  const originalLocation = global.location;
+  const listeners = new Set();
+  const bridgeWindow = {
+    addEventListener(type, listener) {
+      if (type === "message") {
+        listeners.add(listener);
+      }
+    },
+    removeEventListener(type, listener) {
+      if (type === "message") {
+        listeners.delete(listener);
+      }
+    },
+    postMessage(message, targetOrigin) {
+      if (message.source !== "shopee-likes-extension") {
+        return;
+      }
+
+      queueMicrotask(() => {
+        for (const listener of listeners) {
+          listener({
+            data: {
+              source: "shopee-likes-page",
+              type: "shopee-likes-fetch-response",
+              requestId: message.requestId,
+              ok: true,
+              status: 200,
+              body: JSON.stringify({
+                distribution: { product_liked_count: 2 },
+                total_count: 2
+              })
+            },
+            origin: targetOrigin,
+            source: bridgeWindow
+          });
+        }
+      });
+    }
+  };
+
+  global.window = bridgeWindow;
+  global.location = { origin: "https://shopee.com.br" };
+
+  try {
+    const result = await getLikeCount();
+    assert.equal(result.totalCount, 2);
+  } finally {
+    global.window = originalWindow;
+    global.location = originalLocation;
+  }
+});
+
 test("loads and normalizes a complete favorites page", async () => {
   const calls = [];
   const result = await getAllLikedItems({

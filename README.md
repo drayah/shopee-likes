@@ -17,6 +17,15 @@ GET /api/v4/pages/get_liked_items?cursor=0&limit=N&offset=0&status=0
 
 The response includes `data.items`, `data.new_items.item_cards`, and `data.paging`. The extension is read-only: it does not like or unlike products and it does not collect or transmit data to a third party.
 
+The requests run through a narrowly scoped page-world bridge because Shopee accepts the same request from the page’s own JavaScript context but may reject a direct isolated-world content-script request with error `90309999`. The bridge permits only these two same-origin GET paths:
+
+```text
+/api/v4/pages/get_like_count
+/api/v4/pages/get_liked_items
+```
+
+It does not read cookies, copy CSRF tokens, or forward arbitrary requests.
+
 Shopee may change or protect these undocumented internal endpoints at any time. CAPTCHA, anti-bot responses, login expiry, or ad-blocking can prevent the panel from loading.
 
 ## Install locally
