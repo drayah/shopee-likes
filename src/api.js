@@ -36,6 +36,14 @@
     return new URL(path, origin || getDefaultOrigin()).toString();
   }
 
+  function responseData(payload) {
+    if (payload?.data && typeof payload.data === "object" && !Array.isArray(payload.data)) {
+      return payload.data;
+    }
+
+    return payload || {};
+  }
+
   function getLikeCountUrl(origin) {
     return endpoint("/api/v4/pages/get_like_count", origin);
   }
@@ -79,7 +87,7 @@
       headers: { accept: "application/json" }
     });
     const payload = await readJson(response, requestUrl);
-    const data = payload.data || {};
+    const data = responseData(payload);
     const distribution = data.distribution || {};
 
     return {
@@ -95,7 +103,7 @@
       headers: { accept: "application/json" }
     });
     const payload = await readJson(response, requestUrl);
-    const data = payload.data || {};
+    const data = responseData(payload);
 
     return {
       items: Array.isArray(data.items) ? data.items : [],
@@ -108,7 +116,9 @@
   async function getAllLikedItems({ fetchImpl, origin, pageSize = DEFAULT_PAGE_SIZE } = {}) {
     const count = await getLikeCount({ fetchImpl, origin });
     const requestedPageSize = Math.max(1, Number(pageSize) || DEFAULT_PAGE_SIZE);
-    const limit = Math.max(requestedPageSize, count.totalCount);
+    const limit = count.totalCount > 0
+      ? Math.min(requestedPageSize, count.totalCount)
+      : requestedPageSize;
     const items = [];
     let cursor = 0;
     let offset = 0;

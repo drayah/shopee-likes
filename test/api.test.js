@@ -34,6 +34,17 @@ test("reads the favorites count from the Brazil response shape", async () => {
   assert.equal(result.totalCount, 2);
 });
 
+test("reads an unwrapped favorites count response", async () => {
+  const result = await getLikeCount({
+    fetchImpl: async () => responseFrom({
+      distribution: { product_liked_count: 2 },
+      total_count: 2
+    })
+  });
+
+  assert.equal(result.totalCount, 2);
+});
+
 test("loads and normalizes a complete favorites page", async () => {
   const calls = [];
   const result = await getAllLikedItems({
@@ -49,8 +60,30 @@ test("loads and normalizes a complete favorites page", async () => {
   assert.equal(calls.length, 2);
   assert.equal(result.totalCount, 1);
   assert.equal(result.items.length, 1);
+  assert.match(calls[1], /limit=1/);
   assert.equal(normalizeItem(result.items[0]).price, 37.02);
   assert.equal(result.items[0].shop_name, "Loja de exemplo");
+});
+
+test("uses the actual count instead of requesting the default page size", async () => {
+  const calls = [];
+  await getAllLikedItems({
+    fetchImpl: async url => {
+      calls.push(url);
+      if (url.includes("get_like_count")) {
+        return responseFrom({
+          distribution: { product_liked_count: 2 },
+          total_count: 2
+        });
+      }
+      return responseFrom({
+        data: { items: [], paging: { cursor: 2, offset: 0, nomore: true } },
+        error: 0
+      });
+    }
+  });
+
+  assert.match(calls[1], /limit=2/);
 });
 
 test("creates a product URL from the API identifiers", () => {
