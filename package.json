@@ -1,0 +1,15 @@
+{
+  "name": "shopee-likes",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Unofficial open-source desktop access to Shopee Brasil liked products.",
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "check": "node --check src/api.js && node --check src/content-script.js && node --check src/service-worker.js && npm test",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

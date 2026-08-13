@@ -1,0 +1,28 @@
+{
+  "data": {
+    "items": [
+      {
+        "itemid": 123456789,
+        "shopid": 987654321,
+        "name": "Produto de exemplo favoritado",
+        "image": "example-image-id",
+        "currency": "BRL",
+        "price": 3702000,
+        "liked": true,
+        "stock": 12,
+        "status": 1,
+        "item_status": "normal",
+        "shop_name": "Loja de exemplo"
+      }
+    ],
+    "new_items": {
+      "item_cards": []
+    },
+    "paging": {
+      "cursor": 1,
+      "offset": 0,
+      "nomore": true
+    }
+  },
+  "error": 0
+}

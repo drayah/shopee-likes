@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Shopee Likes",
+  "version": "0.1.0",
+  "description": "A small open-source desktop view for your Shopee Brasil liked products.",
+  "permissions": [],
+  "host_permissions": [
+    "https://shopee.com.br/*"
+  ],
+  "action": {
+    "default_title": "Shopee Likes"
+  },
+  "background": {
+    "service_worker": "src/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://shopee.com.br/*"
+      ],
+      "js": [
+        "src/api.js",
+        "src/content-script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
