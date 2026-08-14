@@ -140,6 +140,33 @@ test("uses the actual count instead of requesting the default page size", async 
   assert.match(calls[1], /limit=2/);
 });
 
+test("fails instead of returning partial favorites at the page safety limit", async () => {
+  let pageCalls = 0;
+
+  await assert.rejects(
+    () => getAllLikedItems({
+      pageSize: 1,
+      fetchImpl: async url => {
+        if (url.includes("get_like_count")) {
+          return responseFrom({ data: { total_count: 101 }, error: 0 });
+        }
+
+        pageCalls += 1;
+        return responseFrom({
+          data: {
+            items: [{ itemid: pageCalls }],
+            paging: { cursor: pageCalls, offset: 0, nomore: false }
+          },
+          error: 0
+        });
+      }
+    }),
+    /exceeded the 100-page safety limit/
+  );
+
+  assert.equal(pageCalls, 100);
+});
+
 test("creates a product URL from the API identifiers", () => {
   assert.equal(
     createProductUrl({ itemid: 123456789, shopid: 987654321, name: "Produto de exemplo" }),

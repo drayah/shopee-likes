@@ -11,6 +11,7 @@
 })(typeof globalThis === "undefined" ? this : globalThis, function createApi() {
   const DEFAULT_ORIGIN = "https://shopee.com.br";
   const DEFAULT_PAGE_SIZE = 50;
+  const MAX_PAGE_COUNT = 100;
   const BRIDGE_REQUEST_SOURCE = "shopee-likes-extension";
   const BRIDGE_RESPONSE_SOURCE = "shopee-likes-page";
   const BRIDGE_REQUEST_TYPE = "shopee-likes-fetch";
@@ -197,7 +198,7 @@
     let offset = 0;
     let page;
 
-    for (let pageNumber = 0; pageNumber < 100; pageNumber += 1) {
+    for (let pageNumber = 0; pageNumber < MAX_PAGE_COUNT; pageNumber += 1) {
       page = await getLikedItemsPage({ fetchImpl, origin, cursor, limit, offset });
       items.push(...page.items);
 
@@ -214,6 +215,10 @@
 
       cursor = nextCursor;
       offset = nextOffset;
+    }
+
+    if (page && !page.paging.nomore && page.items.length > 0) {
+      throw new Error(`Shopee favorites exceeded the ${MAX_PAGE_COUNT}-page safety limit.`);
     }
 
     return {
