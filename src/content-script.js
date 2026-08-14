@@ -52,8 +52,20 @@
     .header { align-items: center; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; padding: 16px; }
     .title { font-size: 16px; font-weight: 700; }
     .subtitle { color: #6b7280; font-size: 12px; margin-top: 3px; }
-    .actions { display: flex; gap: 6px; }
-    .icon-button { background: transparent; border: 0; color: #6b7280; cursor: pointer; font-size: 18px; padding: 4px 6px; }
+    .actions { align-items: center; display: flex; gap: 4px; }
+    .icon-button {
+      align-items: center;
+      background: transparent;
+      border: 0;
+      color: #6b7280;
+      cursor: pointer;
+      display: inline-flex;
+      height: 32px;
+      justify-content: center;
+      padding: 0;
+      width: 32px;
+    }
+    .icon-button svg { display: block; height: 18px; width: 18px; }
     .content { overflow: auto; padding: 12px; }
     .status { color: #6b7280; font-size: 13px; padding: 16px 4px; }
     .error { color: #b42318; font-size: 13px; line-height: 1.4; padding: 12px 4px; }
@@ -82,8 +94,17 @@
         <div class="subtitle">Shopee Brasil</div>
       </div>
       <div class="actions">
-        <button class="icon-button refresh" type="button" title="Atualizar" aria-label="Atualizar">↻</button>
-        <button class="icon-button close" type="button" title="Fechar" aria-label="Fechar">×</button>
+        <button class="icon-button refresh" type="button" title="Atualizar" aria-label="Atualizar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 11a8 8 0 1 0 .1 3.4" />
+            <path d="M20 4v7h-7" />
+          </svg>
+        </button>
+        <button class="icon-button close" type="button" title="Fechar" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
       </div>
     </div>
     <div class="content"><div class="status">Carregue seus favoritos.</div></div>
