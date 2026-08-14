@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "commonjs",
   "scripts": {
-    "check": "node --check src/api.js && node --check src/content-script.js && node --check src/service-worker.js && npm test",
+    "check": "node --check src/api.js && node --check src/content-script.js && node --check src/page-bridge.js && node --check src/service-worker.js && npm test",
     "test": "node --test"
   },
   "engines": {

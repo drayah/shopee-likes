@@ -11,6 +11,12 @@
 })(typeof globalThis === "undefined" ? this : globalThis, function createApi() {
   const DEFAULT_ORIGIN = "https://shopee.com.br";
   const DEFAULT_PAGE_SIZE = 50;
+  const MAX_PAGE_COUNT = 100;
+  const BRIDGE_REQUEST_SOURCE = "shopee-likes-extension";
+  const BRIDGE_RESPONSE_SOURCE = "shopee-likes-page";
+  const BRIDGE_REQUEST_TYPE = "shopee-likes-fetch";
+  const BRIDGE_RESPONSE_TYPE = "shopee-likes-fetch-response";
+  const BRIDGE_TIMEOUT_MS = 15000;
 
   function getDefaultOrigin() {
     if (typeof location !== "undefined" && location.origin) {
@@ -20,9 +26,77 @@
     return DEFAULT_ORIGIN;
   }
 
+  function canUsePageBridge() {
+    return typeof window !== "undefined"
+      && typeof window.addEventListener === "function"
+      && typeof window.postMessage === "function";
+  }
+
+  function pageFetch(input) {
+    const requestUrl = new URL(input, getDefaultOrigin());
+
+    if (requestUrl.origin !== getDefaultOrigin()) {
+      return Promise.reject(new Error("Shopee Likes page bridge only permits same-origin requests."));
+    }
+
+    const requestId = `shopee-likes-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+    return new Promise((resolve, reject) => {
+      let timeoutId;
+
+      function cleanup() {
+        window.removeEventListener("message", onMessage);
+        clearTimeout(timeoutId);
+      }
+
+      function onMessage(event) {
+        if (event.source !== window || event.origin !== requestUrl.origin) {
+          return;
+        }
+
+        const message = event.data;
+        if (message?.source !== BRIDGE_RESPONSE_SOURCE
+          || message.type !== BRIDGE_RESPONSE_TYPE
+          || message.requestId !== requestId) {
+          return;
+        }
+
+        cleanup();
+
+        if (message.error) {
+          reject(new Error(message.error));
+          return;
+        }
+
+        resolve({
+          ok: Boolean(message.ok),
+          status: Number(message.status) || 0,
+          text: async () => String(message.body || "")
+        });
+      }
+
+      timeoutId = setTimeout(() => {
+        cleanup();
+        reject(new Error("Shopee page request timed out."));
+      }, BRIDGE_TIMEOUT_MS);
+
+      window.addEventListener("message", onMessage);
+      window.postMessage({
+        source: BRIDGE_REQUEST_SOURCE,
+        type: BRIDGE_REQUEST_TYPE,
+        requestId,
+        path: `${requestUrl.pathname}${requestUrl.search}`
+      }, requestUrl.origin);
+    });
+  }
+
   function resolveFetch(fetchImpl) {
     if (fetchImpl) {
       return fetchImpl;
+    }
+
+    if (canUsePageBridge()) {
+      return pageFetch;
     }
 
     if (typeof fetch === "function") {
@@ -34,6 +108,14 @@
 
   function endpoint(path, origin) {
     return new URL(path, origin || getDefaultOrigin()).toString();
+  }
+
+  function responseData(payload) {
+    if (payload?.data && typeof payload.data === "object" && !Array.isArray(payload.data)) {
+      return payload.data;
+    }
+
+    return payload || {};
   }
 
   function getLikeCountUrl(origin) {
@@ -79,7 +161,7 @@
       headers: { accept: "application/json" }
     });
     const payload = await readJson(response, requestUrl);
-    const data = payload.data || {};
+    const data = responseData(payload);
     const distribution = data.distribution || {};
 
     return {
@@ -95,7 +177,7 @@
       headers: { accept: "application/json" }
     });
     const payload = await readJson(response, requestUrl);
-    const data = payload.data || {};
+    const data = responseData(payload);
 
     return {
       items: Array.isArray(data.items) ? data.items : [],
@@ -108,13 +190,15 @@
   async function getAllLikedItems({ fetchImpl, origin, pageSize = DEFAULT_PAGE_SIZE } = {}) {
     const count = await getLikeCount({ fetchImpl, origin });
     const requestedPageSize = Math.max(1, Number(pageSize) || DEFAULT_PAGE_SIZE);
-    const limit = Math.max(requestedPageSize, count.totalCount);
+    const limit = count.totalCount > 0
+      ? Math.min(requestedPageSize, count.totalCount)
+      : requestedPageSize;
     const items = [];
     let cursor = 0;
     let offset = 0;
     let page;
 
-    for (let pageNumber = 0; pageNumber < 100; pageNumber += 1) {
+    for (let pageNumber = 0; pageNumber < MAX_PAGE_COUNT; pageNumber += 1) {
       page = await getLikedItemsPage({ fetchImpl, origin, cursor, limit, offset });
       items.push(...page.items);
 
@@ -131,6 +215,10 @@
 
       cursor = nextCursor;
       offset = nextOffset;
+    }
+
+    if (page && !page.paging.nomore && page.items.length > 0) {
+      throw new Error(`Shopee favorites exceeded the ${MAX_PAGE_COUNT}-page safety limit.`);
     }
 
     return {
