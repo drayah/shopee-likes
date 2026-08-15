@@ -344,7 +344,7 @@
                 <svg viewBox="0 0 24 24" class="h-5.5 w-5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/><path d="M4 4l16 16" class="hidden"/></svg>
               </div>
               <h3 class="mt-5 text-lg font-bold">Read-only, always</h3>
-              <p class="mt-2 text-sm leading-relaxed text-stone-600">It can&rsquo;t like, unlike, or buy anything. Its product-data access is limited to two same-origin GET endpoints.</p>
+              <p class="mt-2 text-sm leading-relaxed text-stone-600">It can&rsquo;t like, unlike, or buy anything. It only displays the favorites already saved to your Shopee account.</p>
             </div>
 
             <div class="reveal rounded-2xl border border-stone-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-brand-200 hover:shadow-lg hover:shadow-brand-500/5" style="animation-delay: 120ms">
@@ -482,10 +482,8 @@
               There is nowhere for your data to leak to &mdash; the extension has no backend at all.
             </p>
             <p class="mt-4 leading-relaxed text-stone-600">
-              The read flow is limited to two same-origin GET endpoints
-              (<code class="rounded-md bg-stone-100 px-1.5 py-0.5 font-mono text-[13px] text-stone-800">get_like_count</code> and
-              <code class="rounded-md bg-stone-100 px-1.5 py-0.5 font-mono text-[13px] text-stone-800">get_liked_items</code>),
-              enforced by a narrowly scoped bridge. Nothing else can be requested, even by accident.
+              Its permissions are deliberately narrow: it can read favorites from supported Shopee sites, but it can&rsquo;t
+              change your account or send your data to a Shopee Likes server.
             </p>
           </div>
 
@@ -548,7 +546,7 @@
                 Does it collect or send my data anywhere?
                 <svg viewBox="0 0 24 24" class="chevron h-5 w-5 shrink-0 text-stone-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
               </summary>
-              <div class="faq-body"><div><p class="pb-5 text-sm leading-relaxed text-stone-600">No. There is no analytics, no backend server, and no remote code. Product data is fetched through two same-origin GET calls to the Shopee site you&rsquo;re already browsing; product images are loaded from Shopee&rsquo;s image hosts, and the results stay inside the page and the panel.</p></div></div>
+              <div class="faq-body"><div><p class="pb-5 text-sm leading-relaxed text-stone-600">No. Shopee Likes has no analytics, trackers, or backend server. Your favorites and product images come directly from Shopee; nothing is sent to us or another third party.</p></div></div>
             </details>
 
             <details class="reveal group rounded-2xl border border-stone-200 bg-white px-6 shadow-sm open:ring-1 open:ring-brand-200" style="animation-delay: 120ms">
