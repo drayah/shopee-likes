@@ -4,6 +4,13 @@
   "name": "Shopee Likes",
   "version": "0.1.0",
   "description": "A small open-source desktop view for your Shopee liked products.",
+  "homepage_url": "https://drayah.github.io/shopee-likes/",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "permissions": [],
   "host_permissions": [
     "https://shopee.com.br/*",
@@ -16,7 +23,11 @@
     "https://shopee.vn/*"
   ],
   "action": {
-    "default_title": "Shopee Likes"
+    "default_title": "Shopee Likes",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
   },
   "background": {
     "service_worker": "src/service-worker.js"
