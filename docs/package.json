@@ -1,0 +1,15 @@
+{
+  "name": "shopee-likes-landing",
+  "private": true,
+  "description": "Landing page for the Shopee Likes Chrome extension. Static site served from docs/ (e.g. GitHub Pages).",
+  "scripts": {
+    "build": "tailwindcss -i input.css -o styles.css --minify",
+    "watch": "tailwindcss -i input.css -o styles.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

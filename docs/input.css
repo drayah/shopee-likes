@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Shopee brand orange, lifted from the extension UI (#ee4d2d) */
+  --color-brand-50: #fef4f1;
+  --color-brand-100: #fde6e0;
+  --color-brand-200: #fbcfc4;
+  --color-brand-300: #f8ab97;
+  --color-brand-400: #f37d60;
+  --color-brand-500: #ee4d2d;
+  --color-brand-600: #d84325;
+  --color-brand-700: #b5341c;
+  --color-brand-800: #912c1c;
+  --color-brand-900: #77281e;
+  --color-brand-950: #40120c;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-brand-500);
+  color: #fff;
+}
+
+/* ---- Entrance / scroll reveal ---- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Only hide pre-reveal when JS is available to reveal them again */
+.js .reveal {
+  opacity: 0;
+}
+
+.js .reveal.is-visible {
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.is-visible,
+  .float-slow,
+  .float-slower,
+  .glow-drift {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  details .chevron,
+  details .faq-body {
+    transition: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---- Floating mockup motion ---- */
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-slow {
+  animation: float-y 7s ease-in-out infinite;
+}
+
+.float-slower {
+  animation: float-y 9s ease-in-out 1.2s infinite;
+}
+
+/* ---- Ambient hero glow ---- */
+@keyframes glow-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, -6%, 0) scale(1.08);
+  }
+}
+
+.glow-drift {
+  animation: glow-drift 14s ease-in-out infinite;
+}
+
+/* ---- FAQ accordion ---- */
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details .chevron {
+  transition: transform 0.25s ease;
+}
+
+details[open] .chevron {
+  transform: rotate(180deg);
+}
+
+details .faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+details[open] .faq-body {
+  grid-template-rows: 1fr;
+}
+
+.faq-body > div {
+  overflow: hidden;
+}
