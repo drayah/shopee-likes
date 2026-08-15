@@ -62,6 +62,11 @@ body {
     opacity: 1 !important;
   }
 
+  details .chevron,
+  details .faq-body {
+    transition: none !important;
+  }
+
   html {
     scroll-behavior: auto;
   }
