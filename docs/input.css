@@ -56,7 +56,8 @@ body {
   .reveal,
   .reveal.is-visible,
   .float-slow,
-  .float-slower {
+  .float-slower,
+  .glow-drift {
     animation: none !important;
     opacity: 1 !important;
   }
