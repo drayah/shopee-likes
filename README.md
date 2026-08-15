@@ -65,6 +65,17 @@ npm test
 npm run check
 ```
 
+## Landing page
+
+The marketing landing page lives in [`docs/`](docs/) as a static site (plain HTML plus a compiled Tailwind CSS stylesheet), ready to be served by GitHub Pages from the `docs/` folder. Unlike the extension itself, it has a small build step for the stylesheet:
+
+```sh
+cd docs
+npm install
+npm run build   # compiles input.css -> styles.css
+npm run watch   # recompiles on change
+```
+
 ## Privacy and security
 
 - No analytics, backend, remote code, or account data storage.
