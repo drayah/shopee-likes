@@ -9,7 +9,6 @@
     root.ShopeeLikesApi = api;
   }
 })(typeof globalThis === "undefined" ? this : globalThis, function createApi() {
-  const DEFAULT_ORIGIN = "https://shopee.com.br";
   const DEFAULT_PAGE_SIZE = 50;
   const MAX_PAGE_COUNT = 100;
   const BRIDGE_REQUEST_SOURCE = "shopee-likes-extension";
@@ -23,7 +22,7 @@
       return location.origin;
     }
 
-    return DEFAULT_ORIGIN;
+    throw new Error("A Shopee origin is required outside a browser page.");
   }
 
   function canUsePageBridge() {
@@ -229,23 +228,24 @@
     };
   }
 
-  function createProductUrl(item, origin = DEFAULT_ORIGIN) {
+  function createProductUrl(item, origin) {
     if (!item || item.itemid == null || item.shopid == null) {
       return null;
     }
 
+    const resolvedOrigin = origin || getDefaultOrigin();
     const title = item.name ? `${encodeURIComponent(item.name)}-` : "product-";
-    return `${origin}/${title}i.${item.shopid}.${item.itemid}`;
+    return `${resolvedOrigin}/${title}i.${item.shopid}.${item.itemid}`;
   }
 
-  function normalizeItem(item, origin) {
+  function normalizeItem(item, origin, fallbackCurrency) {
     return {
       itemId: item.itemid,
       shopId: item.shopid,
-      name: item.name || "Sem título",
+      name: item.name || "Untitled product",
       image: item.image || null,
       shopName: item.shop_name || "",
-      currency: item.currency || "BRL",
+      currency: item.currency || fallbackCurrency || null,
       price: Number.isFinite(item.price) ? item.price / 100000 : null,
       liked: item.liked === true,
       stock: item.stock ?? null,
@@ -255,7 +255,6 @@
   }
 
   return {
-    DEFAULT_ORIGIN,
     DEFAULT_PAGE_SIZE,
     createProductUrl,
     getAllLikedItems,

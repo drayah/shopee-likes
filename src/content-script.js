@@ -3,6 +3,12 @@
     return;
   }
 
+  const markets = window.ShopeeLikesMarkets;
+  const market = markets?.getMarket(location.hostname);
+  if (!market) {
+    return;
+  }
+
   const api = window.ShopeeLikesApi;
   const root = document.createElement("div");
   root.id = "shopee-likes-root";
@@ -82,32 +88,32 @@
   const launcher = document.createElement("button");
   launcher.className = "launcher";
   launcher.type = "button";
-  launcher.textContent = "♥ Meus favoritos";
+  launcher.textContent = "♥ My favorites";
 
   const panel = document.createElement("section");
   panel.className = "panel";
-  panel.setAttribute("aria-label", "Meus favoritos Shopee");
+  panel.setAttribute("aria-label", "Shopee favorites");
   panel.innerHTML = `
     <div class="header">
       <div>
-        <div class="title">Meus favoritos</div>
-        <div class="subtitle">Shopee Brasil</div>
+        <div class="title">My favorites</div>
+        <div class="subtitle">Shopee ${market.name}</div>
       </div>
       <div class="actions">
-        <button class="icon-button refresh" type="button" title="Atualizar" aria-label="Atualizar">
+        <button class="icon-button refresh" type="button" title="Refresh" aria-label="Refresh">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M20 11a8 8 0 1 0 .1 3.4" />
             <path d="M20 4v7h-7" />
           </svg>
         </button>
-        <button class="icon-button close" type="button" title="Fechar" aria-label="Fechar">
+        <button class="icon-button close" type="button" title="Close" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
       </div>
     </div>
-    <div class="content"><div class="status">Carregue seus favoritos.</div></div>
+    <div class="content"><div class="status">Load your favorites.</div></div>
   `;
 
   shadow.append(style, launcher, panel);
@@ -128,28 +134,28 @@
   function setError(error) {
     const node = document.createElement("div");
     node.className = "error";
-    node.textContent = `Não foi possível carregar seus favoritos: ${error.message}`;
+    node.textContent = `Could not load your favorites: ${error.message}`;
     setContent(node);
   }
 
   function imageUrl(image) {
-    return image ? `https://down-br.img.susercontent.com/file/${encodeURIComponent(image)}_tn.webp` : null;
+    return markets.getImageUrl(image, market);
   }
 
   function formatPrice(item) {
     if (item.price == null) {
-      return "Preço indisponível";
+      return "Price unavailable";
     }
 
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat(market.locale, {
       style: "currency",
-      currency: item.currency || "BRL"
+      currency: item.currency || market.currency
     }).format(item.price);
   }
 
   function renderItems(items) {
     if (!items.length) {
-      setStatus("Você ainda não tem produtos favoritados.");
+      setStatus("You do not have any liked products yet.");
       return;
     }
 
@@ -157,7 +163,7 @@
     grid.className = "grid";
 
     for (const rawItem of items) {
-      const item = api.normalizeItem(rawItem, location.origin);
+      const item = api.normalizeItem(rawItem, location.origin, market.currency);
       const card = document.createElement("a");
       card.className = "card";
       card.href = item.url || "#";
@@ -190,7 +196,7 @@
   }
 
   async function loadItems() {
-    setStatus("Carregando favoritos…");
+    setStatus("Loading favorites…");
 
     try {
       const result = await api.getAllLikedItems({ origin: location.origin });

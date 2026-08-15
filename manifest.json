@@ -3,10 +3,17 @@
   "minimum_chrome_version": "111",
   "name": "Shopee Likes",
   "version": "0.1.0",
-  "description": "A small open-source desktop view for your Shopee Brasil liked products.",
+  "description": "A small open-source desktop view for your Shopee liked products.",
   "permissions": [],
   "host_permissions": [
-    "https://shopee.com.br/*"
+    "https://shopee.com.br/*",
+    "https://shopee.co.id/*",
+    "https://shopee.com.my/*",
+    "https://shopee.ph/*",
+    "https://shopee.sg/*",
+    "https://shopee.co.th/*",
+    "https://shopee.tw/*",
+    "https://shopee.vn/*"
   ],
   "action": {
     "default_title": "Shopee Likes"
@@ -17,7 +24,14 @@
   "content_scripts": [
     {
       "matches": [
-        "https://shopee.com.br/*"
+        "https://shopee.com.br/*",
+        "https://shopee.co.id/*",
+        "https://shopee.com.my/*",
+        "https://shopee.ph/*",
+        "https://shopee.sg/*",
+        "https://shopee.co.th/*",
+        "https://shopee.tw/*",
+        "https://shopee.vn/*"
       ],
       "js": [
         "src/page-bridge.js"
@@ -27,9 +41,17 @@
     },
     {
       "matches": [
-        "https://shopee.com.br/*"
+        "https://shopee.com.br/*",
+        "https://shopee.co.id/*",
+        "https://shopee.com.my/*",
+        "https://shopee.ph/*",
+        "https://shopee.sg/*",
+        "https://shopee.co.th/*",
+        "https://shopee.tw/*",
+        "https://shopee.vn/*"
       ],
       "js": [
+        "src/markets.js",
         "src/api.js",
         "src/content-script.js"
       ],

@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fixture = require("./fixtures/liked-items-response.json");
+const { MARKETS } = require("../src/markets.js");
 const {
   createProductUrl,
   getAllLikedItems,
@@ -8,6 +9,8 @@ const {
   getLikeCount,
   normalizeItem
 } = require("../src/api.js");
+
+const TEST_ORIGIN = "https://shopee.sg";
 
 function responseFrom(value, status = 200) {
   return {
@@ -17,14 +20,15 @@ function responseFrom(value, status = 200) {
   };
 }
 
-test("builds the verified liked-items URL", () => {
+test("builds the liked-items URL from an explicit market origin", () => {
   assert.equal(
-    getLikedItemsUrl({ cursor: 0, limit: 2, offset: 0, status: 0 }),
-    "https://shopee.com.br/api/v4/pages/get_liked_items?cursor=0&limit=2&offset=0&status=0"
+    getLikedItemsUrl({ cursor: 0, limit: 2, offset: 0, status: 0, origin: TEST_ORIGIN }),
+    "https://shopee.sg/api/v4/pages/get_liked_items?cursor=0&limit=2&offset=0&status=0"
   );
 });
-test("reads the favorites count from the Brazil response shape", async () => {
+test("reads a wrapped favorites count response", async () => {
   const result = await getLikeCount({
+    origin: TEST_ORIGIN,
     fetchImpl: async () => responseFrom({
       data: { distribution: { product_liked_count: 2 }, total_count: 2 },
       error: 0
@@ -36,6 +40,7 @@ test("reads the favorites count from the Brazil response shape", async () => {
 
 test("reads an unwrapped favorites count response", async () => {
   const result = await getLikeCount({
+    origin: TEST_ORIGIN,
     fetchImpl: async () => responseFrom({
       distribution: { product_liked_count: 2 },
       total_count: 2
@@ -88,7 +93,7 @@ test("uses the page-world bridge when no fetch implementation is supplied", asyn
   };
 
   global.window = bridgeWindow;
-  global.location = { origin: "https://shopee.com.br" };
+  global.location = { origin: TEST_ORIGIN };
 
   try {
     const result = await getLikeCount();
@@ -102,6 +107,7 @@ test("uses the page-world bridge when no fetch implementation is supplied", asyn
 test("loads and normalizes a complete favorites page", async () => {
   const calls = [];
   const result = await getAllLikedItems({
+    origin: TEST_ORIGIN,
     fetchImpl: async url => {
       calls.push(url);
       if (url.includes("get_like_count")) {
@@ -115,13 +121,38 @@ test("loads and normalizes a complete favorites page", async () => {
   assert.equal(result.totalCount, 1);
   assert.equal(result.items.length, 1);
   assert.match(calls[1], /limit=1/);
-  assert.equal(normalizeItem(result.items[0]).price, 37.02);
+  assert.equal(normalizeItem(result.items[0], TEST_ORIGIN, "SGD").price, 37.02);
   assert.equal(result.items[0].shop_name, "Loja de exemplo");
+});
+
+test("runs the favorites flow against every supported market origin", async () => {
+  for (const market of MARKETS) {
+    const origin = `https://${market.hostname}`;
+    const calls = [];
+    const result = await getAllLikedItems({
+      origin,
+      fetchImpl: async url => {
+        calls.push(url);
+        if (url.includes("get_like_count")) {
+          return responseFrom({ data: { total_count: 1 }, error: 0 });
+        }
+        return responseFrom(fixture);
+      }
+    });
+
+    assert.equal(result.items.length, 1, market.hostname);
+    assert.equal(calls.length, 2, market.hostname);
+    assert.ok(
+      calls.every(url => url.startsWith(`${origin}/api/v4/pages/`)),
+      market.hostname
+    );
+  }
 });
 
 test("uses the actual count instead of requesting the default page size", async () => {
   const calls = [];
   await getAllLikedItems({
+    origin: TEST_ORIGIN,
     fetchImpl: async url => {
       calls.push(url);
       if (url.includes("get_like_count")) {
@@ -145,6 +176,7 @@ test("fails instead of returning partial favorites at the page safety limit", as
 
   await assert.rejects(
     () => getAllLikedItems({
+      origin: TEST_ORIGIN,
       pageSize: 1,
       fetchImpl: async url => {
         if (url.includes("get_like_count")) {
@@ -169,14 +201,31 @@ test("fails instead of returning partial favorites at the page safety limit", as
 
 test("creates a product URL from the API identifiers", () => {
   assert.equal(
-    createProductUrl({ itemid: 123456789, shopid: 987654321, name: "Produto de exemplo" }),
-    "https://shopee.com.br/Produto%20de%20exemplo-i.987654321.123456789"
+    createProductUrl(
+      { itemid: 123456789, shopid: 987654321, name: "Example product" },
+      TEST_ORIGIN
+    ),
+    "https://shopee.sg/Example%20product-i.987654321.123456789"
   );
+});
+
+test("uses the current market currency when an item omits one", () => {
+  const item = normalizeItem({
+    itemid: 123,
+    shopid: 456,
+    name: "Example product",
+    price: 250000
+  }, TEST_ORIGIN, "SGD");
+
+  assert.equal(item.currency, "SGD");
+  assert.equal(item.price, 2.5);
+  assert.equal(item.url, "https://shopee.sg/Example%20product-i.456.123");
 });
 
 test("fails with a useful message for API errors", async () => {
   await assert.rejects(
     () => getLikeCount({
+      origin: TEST_ORIGIN,
       fetchImpl: async () => responseFrom({ error: 13 }, 403)
     }),
     /HTTP 403.*get_like_count/

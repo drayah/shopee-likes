@@ -1,5 +1,7 @@
+importScripts("markets.js");
+
 chrome.action.onClicked.addListener(async tab => {
-  if (!tab.id || !tab.url?.startsWith("https://shopee.com.br/")) {
+  if (!tab.id || !globalThis.ShopeeLikesMarkets.isSupportedUrl(tab.url)) {
     return;
   }
 
