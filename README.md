@@ -76,6 +76,22 @@ npm run build   # compiles input.css -> styles.css
 npm run watch   # recompiles on change
 ```
 
+The published privacy policy is available at
+[drayah.github.io/shopee-likes/privacy.html](https://drayah.github.io/shopee-likes/privacy.html).
+
+## Chrome Web Store release
+
+Build the upload ZIP from the repository root:
+
+```sh
+npm run check
+npm run package
+```
+
+The package command creates `dist/shopee-likes-<version>.zip` with `manifest.json` at the ZIP root and only the files Chrome needs at runtime. Store listing copy and promotional assets live in [`store-assets/`](store-assets/).
+
+Before uploading a new release, increase the version in both `manifest.json` and `package.json`, capture a current 1280×800 screenshot, and verify the extension in a live signed-in Shopee tab.
+
 ## Privacy and security
 
 - No analytics, backend, remote code, or account data storage.
