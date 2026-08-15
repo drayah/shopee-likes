@@ -17,7 +17,12 @@
 
   const style = document.createElement("style");
   style.textContent = `
-    :host { all: initial; }
+    :host {
+      all: initial;
+      --shopee-likes-launcher-bottom: 72px;
+      --shopee-likes-launcher-height: 40px;
+      --shopee-likes-panel-bottom: 124px;
+    }
     * { box-sizing: border-box; }
     .launcher, .panel { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     .launcher {
@@ -25,7 +30,7 @@
       background: #ee4d2d;
       border: 0;
       border-radius: 999px;
-      bottom: 24px;
+      bottom: var(--shopee-likes-launcher-bottom);
       box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
       color: white;
       cursor: pointer;
@@ -33,7 +38,8 @@
       font-size: 14px;
       font-weight: 700;
       gap: 8px;
-      padding: 12px 16px;
+      height: var(--shopee-likes-launcher-height);
+      padding: 0 16px;
       position: fixed;
       right: 24px;
       z-index: 2147483647;
@@ -43,11 +49,11 @@
       background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 16px;
-      bottom: 76px;
+      bottom: var(--shopee-likes-panel-bottom);
       box-shadow: 0 18px 56px rgba(15, 23, 42, .24);
       color: #111827;
       display: none;
-      max-height: min(72vh, 720px);
+      max-height: min(72vh, calc(100vh - 148px), 720px);
       overflow: hidden;
       position: fixed;
       right: 24px;
