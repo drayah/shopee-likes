@@ -45,6 +45,10 @@ It does not read cookies, copy CSRF tokens, or forward arbitrary requests.
 
 Shopee may change or protect these undocumented internal endpoints at any time. CAPTCHA, anti-bot responses, login expiry, or ad-blocking can prevent the panel from loading.
 
+## Install from the Chrome Web Store
+
+[Add Shopee Likes to Chrome](https://chromewebstore.google.com/detail/galoafnacidhgkjebnlaipjlmghhlcda).
+
 ## Install locally
 
 1. Open `chrome://extensions` in Chrome.

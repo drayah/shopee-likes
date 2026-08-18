@@ -9,6 +9,7 @@
 - Homepage: https://drayah.github.io/shopee-likes/
 - Support: https://github.com/drayah/shopee-likes/issues
 - Privacy policy: https://drayah.github.io/shopee-likes/privacy.html
+- Chrome Web Store: https://chromewebstore.google.com/detail/galoafnacidhgkjebnlaipjlmghhlcda
 
 ## Detailed description
 
